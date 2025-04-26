@@ -1,0 +1,494 @@
+{
+  "createdAt": "2025-04-22T06:55:27.536Z",
+  "updatedAt": "2025-04-22T12:35:31.000Z",
+  "id": "4KLl4BBmNjDDOAPl",
+  "name": "My workflow- CV Extracting",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Candidate Assessment",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name",
+              "placeholder": "Enter your Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Resume",
+              "fieldType": "file",
+              "multipleFiles": false,
+              "acceptFileTypes": ".pdf",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -1000,
+        -180
+      ],
+      "id": "131d38e0-900f-4f27-868a-016e5c4514a5",
+      "name": "On form submission",
+      "webhookId": "301d211f-a98a-4ebc-bea3-d2f863953a23"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -380,
+        100
+      ],
+      "id": "abb64b34-eff9-4ed5-88d9-13ba5abf64ee",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "seOfjdb0rUSAtxOs",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "educational_qualification",
+              "description": "Give summery of Education Qualification. Focus on High school and University and also add grades if applicable Summerize in 100 words",
+              "required": true
+            },
+            {
+              "name": "skills",
+              "description": "=Give summery in max 100 words of technical skills with proficiency level . skills must be seperated by a comma. ",
+              "required": true
+            },
+            {
+              "name": "job_summery",
+              "description": "Give job summery focusing on recent job. Just  maintion company name, position and total duration in max 100 words, each experience in differnt  para.",
+              "required": true
+            },
+            {
+              "name": "current_job_post name",
+              "description": "show only current job status, just position. If currently no job available, just show Free",
+              "required": true
+            },
+            {
+              "name": "year_of_experience",
+              "type": "number",
+              "description": "Calculate total year of job experience in number, calculate from job starting year to present year 2025. Use floor function if decimal number",
+              "required": true
+            },
+            {
+              "name": "current_company_name",
+              "description": "Just show current company name. If not availavle, just show Free",
+              "required": true
+            },
+            {
+              "name": "NSDA Certified",
+              "description": "Just give 'YES' if NSDA Certified else give 'NO'",
+              "required": true
+            },
+            {
+              "name": "person_name",
+              "description": "give name of the person",
+              "required": true
+            },
+            {
+              "name": "email",
+              "description": "give the email address of the person",
+              "required": true
+            },
+            {
+              "name": "phone",
+              "description": "give phone or mobile number",
+              "required": true
+            },
+            {
+              "name": "linkedin",
+              "description": "give linkedin link if any",
+              "required": true
+            },
+            {
+              "name": "address",
+              "description": "give full address",
+              "required": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1,
+      "position": [
+        -500,
+        -160
+      ],
+      "id": "ceb73cdd-a864-4a09-9b32-f501418cd00d",
+      "name": "Technical and Educational skill extractor"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "Resume",
+        "name": "={{ 'CV_' + $execution.id+'_'+$json.Resume.filename}}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1rlG7JL-1I-5BmV3cnL2992XuCDA8dy_1",
+          "mode": "list",
+          "cachedResultName": "ALL CV",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1rlG7JL-1I-5BmV3cnL2992XuCDA8dy_1"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -800,
+        -280
+      ],
+      "id": "683d81b1-efd9-4aa2-89fd-56e7e169bc9a",
+      "name": "CV saving- Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "qsUzowpL6iqlVfsL",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "Resume",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        -60
+      ],
+      "id": "abdaaa09-d165-41c7-87e1-31a564ec5d28",
+      "name": "Extract data from CV"
+    },
+    {
+      "parameters": {
+        "text": "=\n{{ $json.id }}",
+        "schemaType": "manual",
+        "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"id\": {\n\t\t\t\"type\": \"string\"\n\t\t}\n\t}\n}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1,
+      "position": [
+        -500,
+        -380
+      ],
+      "id": "18875d7f-6614-4c01-8e0c-005f38a554a6",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1e55MXscdKTrPRxr5VDHTcfo1UJDnEBdpSxMrAUjnrzY",
+          "mode": "list",
+          "cachedResultName": "CV Storage",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1e55MXscdKTrPRxr5VDHTcfo1UJDnEBdpSxMrAUjnrzY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1e55MXscdKTrPRxr5VDHTcfo1UJDnEBdpSxMrAUjnrzY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('On form submission').item.json.Name }}",
+            "Email": "={{ $json.output.email }}",
+            "Phone": "={{ $json.output.phone }}",
+            "Total Job Summary": "={{ $json.output.job_summery }}",
+            "Current Company": "={{ $json.output.current_company_name }}",
+            "Year of Experience": "={{ $json.output.year_of_experience }}",
+            "Current Position": "={{ $json.output['current_job_post name'] }}",
+            "Educational Qualification": "={{ $json.output.educational_qualification }}",
+            "NSDA Certified": "={{ $json.output['NSDA Certified'] }}",
+            "CV Link": "={{ 'https://drive.google.com/file/d/' +  $json.output.id  + '/view?usp=sharing' }}\n",
+            "Present Address": "={{ $json.output.address }}",
+            "Area of Expertise/ Skills": "={{ $json.output.skills }}",
+            "Linkedin Link": "={{ $json.output.linkedin }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Present Address",
+              "displayName": "Present Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Area of Expertise/ Skills",
+              "displayName": "Area of Expertise/ Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Current Company",
+              "displayName": "Current Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Current Position",
+              "displayName": "Current Position",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Year of Experience",
+              "displayName": "Year of Experience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total Job Summary",
+              "displayName": "Total Job Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Educational Qualification",
+              "displayName": "Educational Qualification",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "NSDA Certified",
+              "displayName": "NSDA Certified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CV Link",
+              "displayName": "CV Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Linkedin Link",
+              "displayName": "Linkedin Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        120,
+        -220
+      ],
+      "id": "31f3fbd0-b076-4446-b3b4-051ab3ee5476",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "iWQWFcYXRAuWKCdE",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        -60,
+        -260
+      ],
+      "id": "ab655fe8-3ad4-4799-9f52-1729cce8c55a",
+      "name": "Merge"
+    }
+  ],
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "CV saving- Google Drive",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Extract data from CV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Technical and Educational skill extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Technical and Educational skill extractor": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Extract data from CV": {
+      "main": [
+        [
+          {
+            "node": "Technical and Educational skill extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CV saving- Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "bdd9116f-8999-4e4b-9329-bc378c763c1f",
+  "triggerCount": 1,
+  "tags": []
+}
