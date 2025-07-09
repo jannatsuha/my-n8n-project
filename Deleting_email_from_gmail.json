@@ -1,0 +1,192 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                5
+              ],
+              "triggerAtHour": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -320,
+        -60
+      ],
+      "id": "4297838f-5d4a-4afb-8c6a-37d05585f471",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "id",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        360,
+        -60
+      ],
+      "id": "c581709b-e6d1-4b06-9408-4a4d09b7f6fe",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "messageId": "={{ $json.id }}"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        560,
+        -60
+      ],
+      "id": "24c36243-15e0-41bc-8b9b-dad049da2ee8",
+      "name": "Delete a message",
+      "webhookId": "25ed7238-f896-4a47-aafd-1cbcf8749c45",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Sekam9Ua4k5j3SmX",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        140,
+        -60
+      ],
+      "id": "4ace370f-97e3-4b30-b71f-63452638a684",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": {
+          "labelIds": [
+            "CATEGORY_PROMOTIONS"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -100,
+        -160
+      ],
+      "id": "d43b5583-4ed9-4475-ab96-4626521a4714",
+      "name": "Promotional Message",
+      "webhookId": "80ee1f0f-16d8-47ad-9ae9-135f4f9b8cdb",
+      "alwaysOutputData": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Sekam9Ua4k5j3SmX",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": {
+          "sender": "Alibaba"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -100,
+        40
+      ],
+      "id": "2f640c67-8fb2-4ec9-b5dc-07a8b64cb3a9",
+      "name": "Alibaba Msg",
+      "webhookId": "80ee1f0f-16d8-47ad-9ae9-135f4f9b8cdb",
+      "alwaysOutputData": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Sekam9Ua4k5j3SmX",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Promotional Message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Alibaba Msg",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Delete a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Promotional Message": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alibaba Msg": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "999fa99a069e7db8007e59c9ee91da676dd1b2885ce4219f545de8665db7292d"
+  }
+}
