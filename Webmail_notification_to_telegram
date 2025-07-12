@@ -1,0 +1,209 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "postProcessAction": "nothing",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [
+        -500,
+        -20
+      ],
+      "id": "1a5a14b9-ed36-4646-8566-4a5d2163ad2f",
+      "name": "Email Trigger (IMAP)",
+      "credentials": {
+        "imap": {
+          "id": "QHIO4MY7kgQjx2L1",
+          "name": "IMAP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.textPlain }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "Email Subject",
+              "description": "if email subject is related to any type of interview call, then write the subject as Interview call Email. Or if it is related to others, then write Email subject in short as per topic\n\n",
+              "required": true
+            },
+            {
+              "name": "Email address",
+              "description": "={{ $json.from }}",
+              "required": true
+            },
+            {
+              "name": "Email Body",
+              "description": "You are a intelligent model. Write the email body in short as summery. If body empty, set Email Body as empty. \n",
+              "required": true
+            },
+            {
+              "name": "Email Label",
+              "type": "boolean",
+              "description": "you are intelligent. find the sender and email body. It is important for me if it is not about any promotion or update or social or alert email. If email seems important set value true, otherwise false.",
+              "required": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        -260,
+        -20
+      ],
+      "id": "1ddaf767-e25c-4eba-87c4-6f51d8984f3a",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-1.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -260,
+        220
+      ],
+      "id": "e1892cee-ae41-41b0-9e87-ae8511cbb833",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "xP9VsMv3S7Rrf2lZ",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "7548385044",
+        "text": "=You have received an Important Email in {{ $('Email Trigger (IMAP)').item.json.to }}\nSubject: {{ $('Information Extractor').item.json.output['Email Subject'] }}  \nSender: {{ $('Information Extractor').item.json.output['Email address'] }}\nEmail Summery: {{ $('Information Extractor').item.json.output['Email Body'] }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        -40
+      ],
+      "id": "57c2000d-a8e4-4272-94ac-80537919005e",
+      "name": "Send a text message",
+      "webhookId": "ef8a7d9d-d38c-4cd9-bed7-d418c1a8f52f",
+      "credentials": {
+        "telegramApi": {
+          "id": "wVKmOYmLMfkAeFGd",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "74c94634-6602-4855-80df-70041bfbc893",
+              "leftValue": "={{ $('Information Extractor').item.json.output['Email Label'] }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        140,
+        -20
+      ],
+      "id": "66c4a983-ff95-4cb8-ab63-ddca77ce8fe9",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        400,
+        180
+      ],
+      "id": "966e90a1-bc8c-4c27-afeb-7a3c84d2aa88",
+      "name": "No Operation, do nothing"
+    }
+  ],
+  "connections": {
+    "Email Trigger (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "999fa99a069e7db8007e59c9ee91da676dd1b2885ce4219f545de8665db7292d"
+  }
+}
