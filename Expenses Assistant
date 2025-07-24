@@ -1,0 +1,218 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "10597251-e6c9-457a-985d-db837b0a9471",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        -16
+      ],
+      "webhookId": "telegram-webhook",
+      "credentials": {
+        "telegramApi": {
+          "id": "debq17yB11zujtC4",
+          "name": "Bazar_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const text = $node[\"Telegram Trigger\"].json[\"message\"][\"text\"].trim();\nconst entries = text.split(/[,\\\\n]/);\nconst results = [];\n\nfor (let entry of entries) {\n  entry = entry.trim();\n\n  // Match pattern: Description + amount + optional tk + quantity\n  const match = entry.match(/^(.*?)\\s*(\\d+(?:\\.\\d+)?)\\s*(?:tk|৳)?\\s*(.*)$/i);\n\n  if (!match) continue;\n\n  const description = match[1].trim();\n  const amount = parseFloat(match[2]);\n  const quantity = match[3].trim();\n\n  results.push({\n    json: {\n      description: description || \"No Description\",\n      amount,\n      quantity: quantity || \"Not specified\",\n      date: new Date().toLocaleDateString(\"en-GB\"),\n      month: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),\n    }\n  });\n}\n\nreturn results;\n"
+      },
+      "name": "Parse Message",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        -16
+      ],
+      "id": "8e2e47c1-030c-4390-9f17-fb8e279a2c7e"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1aqbQqXq0q2o5VJSd_ecajx2mhUy4bk3r-c7CeAfh0Jg",
+          "mode": "list",
+          "cachedResultName": "Monthly Expenses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aqbQqXq0q2o5VJSd_ecajx2mhUy4bk3r-c7CeAfh0Jg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "July 2025",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aqbQqXq0q2o5VJSd_ecajx2mhUy4bk3r-c7CeAfh0Jg/edit#gid=0"
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "Date",
+              "fieldValue": "={{ $json.date }}"
+            },
+            {
+              "fieldId": "Description",
+              "fieldValue": "={{ $json.description }}"
+            },
+            {
+              "fieldId": "Amount",
+              "fieldValue": "={{ $json.amount }}"
+            },
+            {
+              "fieldId": "Quantity",
+              "fieldValue": "={{ $json.quantity }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Add Expense",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [
+        -176,
+        -112
+      ],
+      "id": "2b53ba5b-3636-4a66-804b-9d2959e93fdd",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wIsYcJFvOXgQLuF7",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1aqbQqXq0q2o5VJSd_ecajx2mhUy4bk3r-c7CeAfh0Jg",
+          "mode": "list",
+          "cachedResultName": "Monthly Expenses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aqbQqXq0q2o5VJSd_ecajx2mhUy4bk3r-c7CeAfh0Jg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "July 2025",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aqbQqXq0q2o5VJSd_ecajx2mhUy4bk3r-c7CeAfh0Jg/edit#gid=0"
+        },
+        "options": {}
+      },
+      "name": "Read Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [
+        -176,
+        80
+      ],
+      "id": "50beafd3-9433-4272-ab71-7eb7f4128b05",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wIsYcJFvOXgQLuF7",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "let total = 0;\nlet debug = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const row = items[i].json;\n\n  debug.push(row); // collect for debugging\n\n  const amountStr = row[\"Amount\"];  // Adjust this key if needed\n  const amount = parseFloat(amountStr);\n\n  if (!isNaN(amount)) {\n    total += amount;\n  }\n}\n\nreturn [{\n  json: {\n    total,\n    month: $node[\"Parse Message\"].json[\"month\"],\n    debug\n  }\n}];\n"
+      },
+      "name": "Calculate Total",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        32,
+        80
+      ],
+      "id": "0644e361-41e2-4053-a13d-dadbe2d554ac"
+    },
+    {
+      "parameters": {
+        "chatId": "=7548385044",
+        "text": "=✅ Your expense has been recorded!\n\n📅 Month: {{ $json.month }}\n💰 Total Expense Till Now: {{ $json.total }} TK",
+        "additionalFields": {}
+      },
+      "name": "Send Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        224,
+        80
+      ],
+      "id": "4e07396e-afcc-47bd-876b-1589094faef2",
+      "webhookId": "4083cd5e-fbc6-4ce3-992f-9b7e950116ea",
+      "credentials": {
+        "telegramApi": {
+          "id": "debq17yB11zujtC4",
+          "name": "Bazar_bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Message": {
+      "main": [
+        [
+          {
+            "node": "Add Expense",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Sheet": {
+      "main": [
+        [
+          {
+            "node": "Calculate Total",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Total": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "999fa99a069e7db8007e59c9ee91da676dd1b2885ce4219f545de8665db7292d"
+  }
+}
