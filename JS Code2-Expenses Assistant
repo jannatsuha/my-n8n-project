@@ -1,0 +1,23 @@
+let total = 0;
+let debug = [];
+
+for (let i = 0; i < items.length; i++) {
+  const row = items[i].json;
+
+  debug.push(row); // collect for debugging
+
+  const amountStr = row["Amount"];  // Adjust this key if needed
+  const amount = parseFloat(amountStr);
+
+  if (!isNaN(amount)) {
+    total += amount;
+  }
+}
+
+return [{
+  json: {
+    total,
+    month: $node["Parse Message"].json["month"],
+    debug
+  }
+}];
