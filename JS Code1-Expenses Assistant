@@ -1,0 +1,28 @@
+const text = $node["Telegram Trigger"].json["message"]["text"].trim();
+const entries = text.split(/[,\\n]/);
+const results = [];
+
+for (let entry of entries) {
+  entry = entry.trim();
+
+  // Match pattern: Description + amount + optional tk + quantity
+  const match = entry.match(/^(.*?)\s*(\d+(?:\.\d+)?)\s*(?:tk|৳)?\s*(.*)$/i);
+
+  if (!match) continue;
+
+  const description = match[1].trim();
+  const amount = parseFloat(match[2]);
+  const quantity = match[3].trim();
+
+  results.push({
+    json: {
+      description: description || "No Description",
+      amount,
+      quantity: quantity || "Not specified",
+      date: new Date().toLocaleDateString("en-GB"),
+      month: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
+    }
+  });
+}
+
+return results;
