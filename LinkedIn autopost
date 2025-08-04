@@ -1,0 +1,126 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "N8N",
+        "formDescription": "N8N linkedin post",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Title",
+              "placeholder": "Enter Title",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -336,
+        -112
+      ],
+      "id": "a4afb5e5-ec9e-41bb-8156-fe2bda9ec579",
+      "name": "On form submission",
+      "webhookId": "b64e5b83-44d9-40fc-9a60-8239ec952a3f"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a professional content writer who specializes in crafting creative, \nengaging LinkedIn posts. Based on the title provided by the user, \nwrite a compelling, thoughtful, and platform-appropriate \nLinkedIn post that includes a hook, insight or story, and a \nlight call-to-action. Keep the tone professional yet friendly, \nand ensure it fits well with the expectations of LinkedIn audiences.\n\nUser’s Title: {{ $json.Title }}\n\nNow write the post.",
+        "options": {
+          "systemMessage": "You are an expert LinkedIn content writer. \nYour job is to turn any given title into a compelling, professional, \nand creative LinkedIn post that resonates with working professionals, \nfounders, marketers, or creators.\n\nYour writing should:\n\n    Begin with an engaging hook (question, bold statement, or insight)\n\n    Provide a short story, lesson, or idea related to the title\n\n    End with a soft call-to-action or reflective closing line\n\n    Use clear, concise language suited for LinkedIn\n\n    Be formatted with line breaks for readability\n\nAvoid hashtags unless relevant. Emojis can be used lightly for expression (optional).\n\nAudience: Professionals who browse LinkedIn for learning, inspiration, and \nideas. Write post in bengali language that is human like approach "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        -128,
+        -112
+      ],
+      "id": "f94b7c51-de55-4d92-8859-b9c2c6cca806",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        128
+      ],
+      "id": "86d13eeb-5028-4442-9036-f027094bab73",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "lu0VBLkIlJOjwkoF",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "postAs": "organization",
+        "organization": "82164713",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        224,
+        -112
+      ],
+      "id": "9dc022f9-be61-4077-b6e7-f1809b177b3c",
+      "name": "Create a post",
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "n0F0HlvU4cVV6gQh",
+          "name": "LinkedIn account 2"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Create a post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "999fa99a069e7db8007e59c9ee91da676dd1b2885ce4219f545de8665db7292d"
+  }
+}
