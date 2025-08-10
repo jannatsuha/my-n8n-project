@@ -1,0 +1,46 @@
+-----------Text to HTM------------
+// Get templates from previous node
+const templates = items.map(item => item.json);
+
+// Check if templates exist
+if (!templates || templates.length === 0) {
+  throw new Error('No templates found');
+}
+
+// Pick a random template
+const index = Math.floor(Math.random() * templates.length);
+const template = templates[index];
+
+// Convert body to HTML
+const bodyHtml = template.Body.replace(/\n/g, '<br>');
+
+// Return in n8n-compatible format
+return [
+  {
+    json: {
+      subject: template.Subject,
+      body: bodyHtml
+    }
+  }
+];
+
+
+---------Replace Name---------
+
+return items.map(item => {
+  // Get name from JSON, default to "Concern" if missing or empty
+  const name = item.json.Name && item.json.Name.trim() !== '' 
+    ? item.json.Name 
+    : 'Concern';
+
+  // Replace [First Name] in the text
+  const updatedBody = item.json.body.replace('[First Name]', name);
+
+  // Return updated JSON
+  return {
+    json: {
+      ...item.json,
+      body: updatedBody
+    }
+  };
+});
