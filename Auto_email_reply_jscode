@@ -1,0 +1,24 @@
+// Input: text from AI agent
+const text = $json["output"];  // replace with your field name
+
+// Extract email category (Important / Not important)
+// This regex matches either plain "Important" or "**Important**"
+const categoryMatch = text.match(/\**\s*(Important|Not important)\s*\**/i);
+const category = categoryMatch ? categoryMatch[1] : "";
+
+// Extract subject
+const subjectMatch = text.match(/Subject:\s*(.*)/i);
+const subject = subjectMatch ? subjectMatch[1].trim() : "";
+
+// Extract reply body (everything after Subject line)
+let replyBody = "";
+if (subjectMatch) {
+  const startIndex = text.indexOf(subjectMatch[0]) + subjectMatch[0].length;
+  replyBody = text.substring(startIndex).trim();
+}
+
+return {
+  category,
+  subject,
+  replyBody
+};
