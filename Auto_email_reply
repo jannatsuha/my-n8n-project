@@ -1,0 +1,199 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -352,
+        -80
+      ],
+      "id": "82b87c08-fec8-4eaa-9588-6f958e1963be",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "fEva3xSSnaVSGRgR",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "=define",
+        "text": "=Here is a new email:\n\nSubject: {{ $json.Subject }}\nFrom: {{ $json.From }}\nBody: {{ $json.snippet }}\n\nDecide if this email is important or not. \nIf important → Give message \"Important\" also explain why and write a reply. \nIf not important → output only \"Not important\".\n\nReplier Name will be : Suha\n\n",
+        "options": {
+          "systemMessage": "=You are an AI email assistant inside an n8n automation. \nYour task is to carefully analyze incoming emails. \nClassify each email into one of these categories: \n- Important \n- Promotional \n- Social \n- Update \n- Spam \n\nRules: \n1. Important emails are personal, work-related, client-related, or require a response/action. \n2. Promotional, social, updates, and spam emails are NOT important. \n3. If the email is important, summarize the reason it is important and generate a polite reply draft. \n4. If the email is not important, just output: \"Not important\".\n5. Always keep responses short, clear, and professional. \n\n\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -144,
+        -80
+      ],
+      "id": "67a681b1-c108-4219-a39f-e387ff4180be",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        144
+      ],
+      "id": "9280e342-f207-4eaf-89c2-601193e78dc8",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "BnjdpOkTQ5FySCoY",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input: text from AI agent\nconst text = $json[\"output\"];  // replace with your field name\n\n// Extract email category (Important / Not important)\n// This regex matches either plain \"Important\" or \"**Important**\"\nconst categoryMatch = text.match(/\\**\\s*(Important|Not important)\\s*\\**/i);\nconst category = categoryMatch ? categoryMatch[1] : \"\";\n\n// Extract subject\nconst subjectMatch = text.match(/Subject:\\s*(.*)/i);\nconst subject = subjectMatch ? subjectMatch[1].trim() : \"\";\n\n// Extract reply body (everything after Subject line)\nlet replyBody = \"\";\nif (subjectMatch) {\n  const startIndex = text.indexOf(subjectMatch[0]) + subjectMatch[0].length;\n  replyBody = text.substring(startIndex).trim();\n}\n\nreturn {\n  category,\n  subject,\n  replyBody\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        -80
+      ],
+      "id": "8f99c40d-682d-448f-b817-5f78c8c8c292",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e8f8ee5e-5f08-4f72-805f-613713f2ebb8",
+              "leftValue": "={{ $json.category.toLowerCase() }}",
+              "rightValue": "important",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        -80
+      ],
+      "id": "59c5a70a-ecff-49eb-a16b-bae9a34e7b80",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "emailType": "text",
+        "message": "={{ $json.replyBody }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        608,
+        -256
+      ],
+      "id": "4f2ee13f-b6e7-40f8-a518-9838e1bf410a",
+      "name": "Reply to a message",
+      "webhookId": "4493a6f8-cb78-44c7-bb7f-ffe78f9f9b81",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "fEva3xSSnaVSGRgR",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "166d8ef7b20e0e043159c3b963ab6d27073d57960bba7538caae45542c6dab07"
+  }
+}
