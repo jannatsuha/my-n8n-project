@@ -1,0 +1,710 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "multipleMethods": true,
+        "path": "fb-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1888,
+        48
+      ],
+      "id": "c2dc513a-8b33-46ec-853d-08fb0e9ed021",
+      "name": "Webhook",
+      "webhookId": "d795f12d-f13f-4558-ac33-bafae24f4d26"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "376f0833-4df8-46aa-9d61-f553c7de3ea7",
+              "leftValue": "={{ $json.query['hub.mode'] }}",
+              "rightValue": "subscribe",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "7677e668-978f-4994-b11e-404ab2a1dd00",
+              "leftValue": "={{ $json.query['hub.verify_token'] }}",
+              "rightValue": "tokensuha",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1872,
+        -256
+      ],
+      "id": "707561e8-a59d-4071-827b-07058bfebfb3",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query['hub.challenge'] }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -1680,
+        -384
+      ],
+      "id": "200e84ae-00f2-441e-86ae-67e418cd7300",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": 404
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -1680,
+        -240
+      ],
+      "id": "6ee3d0e4-828c-4197-9ef3-c8fdda5356c7",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5f6b95a5-7152-4b70-9db6-163410b78579",
+              "name": "sender_id",
+              "value": "={{ $json.body.entry[0].messaging[0].sender.id }}",
+              "type": "string"
+            },
+            {
+              "id": "2de0d29f-4df7-4d98-902b-dedf6d683acc",
+              "name": "receiver_id",
+              "value": "={{ $json.body.entry[0].messaging[0].recipient.id }}",
+              "type": "string"
+            },
+            {
+              "id": "53ddb29e-6492-4585-a841-c773da7b94e0",
+              "name": "message",
+              "value": "={{ $json.body.entry[0].messaging[0].message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1264,
+        240
+      ],
+      "id": "4f6ee81a-6d43-4272-b4a3-0896e36bf98c",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=User Message: {{ $json.message }}\nReply in a human, natural tone. Keep it short and helpful. Keep message simple. Be spesific. ",
+        "options": {
+          "systemMessage": "=You are a helpful assistant for Nobanno-নবান্ন, a daily food catering service based in Dhaka City. Nobanno delivers fresh, home-style cooked lunch and dinner every day.\n\n📍 Delivery Areas: Mohammadpur, Lalmatia, Dhanmondi, Panthopath, Jigatola, Shyamoli, Adabor, Farmgate, Agargaon,kolabagan.\n\n📦 Menu Packages: Packages price are fixed. Do not change or modify the package price. \n– Regular Package (৳99):\n • Boiler Chicken – 3 days/week\n • Fish (Rui, Katol, Mrigel, Carp) – 3 days/week\n • Egg – 1 day/week\n\n– Standard Package (৳120):\n • Sonali Chicken – 3 days/week\n • Fish (Rui, Katol, Mrigel) – 3 days/week\n • Double Egg – 1 day/week\n\n– Corporate Special Package (৳130):\n • Beef – 1 day/week\n • Sonali Chicken – 3 days/week\n • Fish (Rui, Katol, Mrigel) – 2 days/week\n • Double Egg – 1 day/week\n\n🍛 Special Item: Once every month (only one Thursday), we provide Beef Curry in Standard and Regular packages.\n\nWe also provide customize menu, Minimum order for customized menu is 10. \n\n🕘 Order Timing:\n– We usually takes order before 9:00 AM for that day's food. They have to call directly for instant order. \n\nIf someone wants to order  then say him to directly call on whatsapp number. We take order confirmation on whatsapp only. Give your full name, phone number and details address and order quantity to whatsapp number +8801757278206. \n\n– Approx Delivery time: Between 12:00 PM to 1:30 PM.\n\nPayment system: \nCustomer can pay weekly or monthly by bank transfer of cash payment\n\n📞 To Order:\n– Minimum order: 5 boxes. \n- If someone request for less than 5 box order, then they have to call on whatsapp number for asking if it possible or not? .\n– Place order via WhatsApp at +8801757278206\n– Also available for direct calls\n\nFood Delivery box or Container: We deliver food in food grade one time paper board box and also in RFL food grade lunch box depending on customer choice. \n\n🌐 Language Rule:\n– If the customer messages in Bengali, reply in Bengali\n– If in English, reply in English\n\n🤖 If you do not know the answer to a query, reply with:\n“Please call or WhatsApp us at +8801757278206 for more details.”\n\nIf customers say \"Ok\" ,\"Thanks\" then just say, \"Thanks for contacting Nobanno\"\n\nBe always polite, informative, and clear. Help users understand the packages, delivery process, and how to place an order. Don't use any special characters or new line. Keep message simple. Be spesific.\n\nCurrent time: {{ $now.format(\"YYYY-MM-DD HH:mm:ss\") }}\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        -1056,
+        240
+      ],
+      "id": "bdd8ebcb-33c3-4ffe-8010-d49450bedde4",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1104,
+        432
+      ],
+      "id": "a6358a25-f709-4c13-957e-9f28a1f9b3e0",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "dbRgWY5fRsN4YCo8",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v23.0/{{ $('Edit Fields').item.json.receiver_id }}/messages?access_token=EAAUz6gVSWX4BPEkWEfLnzhRl22wdQo3CWiSRhJsQP9wRZCNkopMpchgHzdaKfvjIo7t6xjVOMZBp3ngyL84VLH0Sq8ENCano6zs8BZAevZB66anjHGqbF6uHOTdPKBPOK76e61fitt56KFGCx3OVBij3UXaMFZBzGhDVcEwZAtCIN35e16lLFbBAMwNfcDp5JlqZAXJLvneDEg6UZBBp4fYnwgZDZD",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Edit Fields').item.json.sender_id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": \"{{ $json.output }}\"\n  }\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -720,
+        240
+      ],
+      "id": "b1f046d1-3b9b-4f0b-bd52-4ef324014d21",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9b6e915f-c4b5-4d81-98a8-30abe2867db2",
+              "leftValue": "={{ $json.body.entry[0].messaging[0].message.attachments[0].type }}",
+              "rightValue": "audio",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1584,
+        0
+      ],
+      "id": "b75464de-89b5-4e5c-aa41-6ed653d04c77",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4762a5d6-7637-4cd3-ac54-5d4e88abdbde",
+              "leftValue": "={{ $json.body.entry[0].messaging[0].message.attachments[0].type }}",
+              "rightValue": "image",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1408,
+        -80
+      ],
+      "id": "704b862e-e4ff-4ca8-b0cf-b211695f54fd",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "requestMethod": "POST",
+        "url": "https://api.openai.com/v1/responses",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={\n  \"model\": \"gpt-4o-mini\",\n  \"input\": [\n    {\n      \"role\": \"user\",\n      \"content\": [\n        {\n          \"type\": \"input_text\",\n          \"text\": \"You are an expert Image Analyger. Return ONLY valid JSON in this schema: { \\\"Image Type\\\": <short description>,\\\"Menu Name\\\": <short description>,\\\"Price\\\": <short description>,\\\"Details\\\": <short description> }\"\n        },\n        {\n          \"type\": \"input_image\",\n          \"image_url\": \"{{ $json.imageUrl }}\"\n        }\n      ]\n    }\n  ]\n}\n"
+      },
+      "id": "21a3d174-12b5-4604-8973-790e95b0be74",
+      "name": "Call OpenAI Vision",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        -928,
+        -176
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "vQsMNbPcRt684fG4",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.imageUrl }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1088,
+        -176
+      ],
+      "id": "75797df0-f51e-441a-a3a5-a65606113a1e",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"imageUrl\": \"{{ $json['body']['entry'][0]['messaging'][0]['message']['attachments'][0]['payload']['url'] }}\"\n}\n\n\n\n\n",
+        "includeOtherFields": "={{ false }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1248,
+        -176
+      ],
+      "id": "a8e6be54-9ea1-4248-a3b3-884495366ead",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.output[0].content[0].text }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "Image Type",
+              "description": "If the Image is like food menu or food plater, then say \"Food\" otherwise say \"Others\"",
+              "required": true
+            },
+            {
+              "name": "Menu Name",
+              "description": "If the menu name if present then give the name, otherwise give \"No Name\"",
+              "required": true
+            },
+            {
+              "name": "Price",
+              "description": "If Image shows any price in it, give it. Otherwise say \"No Price given\"",
+              "required": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        -752,
+        -176
+      ],
+      "id": "0760cb13-f081-462d-a890-6be94c519601",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-thinking-exp",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -752,
+        32
+      ],
+      "id": "50ec380b-df30-47f5-b50d-2c681fb6243e",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "dbRgWY5fRsN4YCo8",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=User Message: \n{{ $json.output['Image Type'] }}\n{{ $json.output['Menu Name'] }}\n{{ $json.output.Price }}\nReply in a human, natural tone. Keep it short and helpful. Keep message simple. Be spesific. ",
+        "options": {
+          "systemMessage": "=You are a helpful assistant for Nobanno-নবান্ন, a daily food catering service based in Dhaka City. Nobanno delivers fresh, home-style cooked lunch and dinner every day.\n\n📍 Delivery Areas: Mohammadpur, Lalmatia, Dhanmondi, Panthopath, Jigatola, Shyamoli, Adabor, Farmgate, Agargaon,kolabagan.\n\n📦 Menu Packages: Packages price are fixed. Do not change or modify the package price. \n– Regular Package (৳99):\n • Boiler Chicken – 3 days/week\n • Fish (Rui, Katol, Mrigel, Carp) – 3 days/week\n • Egg – 1 day/week\n\n– Standard Package (৳120):\n • Sonali Chicken – 3 days/week\n • Fish (Rui, Katol, Mrigel) – 3 days/week\n • Double Egg – 1 day/week\n\n– Corporate Special Package (৳130):\n • Beef – 1 day/week\n • Sonali Chicken – 3 days/week\n • Fish (Rui, Katol, Mrigel) – 2 days/week\n • Double Egg – 1 day/week\n\n🍛 Special Item: Once every month (only one Thursday), we provide Beef Curry in Standard and Regular packages.\n\nWe also provide customize menu, Minimum order for customized menu is 10. \n\n🕘 Order Timing:\n– We usually takes order before 9:00 AM for that day's food. They have to call directly for instant order. \n\nIf someone wants to order  then say him to directly call on whatsapp number. We take order confirmation on whatsapp only. Give your full name, phone number and details address and order quantity to whatsapp number +8801757278206. \n\n– Approx Delivery time: Between 12:00 PM to 1:30 PM.\n\nPayment system: \nCustomer can pay weekly or monthly by bank transfer of cash payment\n\n📞 To Order:\n– Minimum order: 5 boxes. \n- If someone request for less than 5 box order, then they have to call on whatsapp number for asking if it possible or not? .\n– Place order via WhatsApp at +8801757278206\n– Also available for direct calls\n\nFood Delivery box or Container: We deliver food in food grade one time paper board box and also in RFL food grade lunch box depending on customer choice. \n\n🌐 Language Rule:\n– If the customer messages in Bengali, reply in Bengali\n– If in English, reply in English\n\n🤖 If you do not know the answer to a query, reply with:\n“Please call or WhatsApp us at +8801757278206 for more details.”\n\nIf customers say \"Ok\" ,\"Thanks\" then just say, \"Thanks for contacting Nobanno\"\n\nBe always polite, informative, and clear. Help users understand the packages, delivery process, and how to place an order. Don't use any special characters or new line. Keep message simple. Be spesific.\n\nCurrent time: {{ $now.format(\"YYYY-MM-DD HH:mm:ss\") }}\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        -464,
+        -176
+      ],
+      "id": "39b3749b-0e60-4e91-8b38-f113965bfd58",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        48
+      ],
+      "id": "c072f7db-94cf-4930-90a3-5979aa606b13",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "dbRgWY5fRsN4YCo8",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v23.0/{{ $('Webhook').item.json.body.entry[0].messaging[0].recipient.id }}/messages?access_token=EAAUz6gVSWX4BPEkWEfLnzhRl22wdQo3CWiSRhJsQP9wRZCNkopMpchgHzdaKfvjIo7t6xjVOMZBp3ngyL84VLH0Sq8ENCano6zs8BZAevZB66anjHGqbF6uHOTdPKBPOK76e61fitt56KFGCx3OVBij3UXaMFZBzGhDVcEwZAtCIN35e16lLFbBAMwNfcDp5JlqZAXJLvneDEg6UZBBp4fYnwgZDZD",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Webhook').item.json.body.entry[0].messaging[0].sender.id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": \"{{ $json.output }}\"\n  }\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -192,
+        -176
+      ],
+      "id": "885b1b57-5029-4e09-a82a-8cfde9431b24",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $workflow.id }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -976,
+        432
+      ],
+      "id": "4f238572-5ec7-4267-9699-b4963a467943",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $workflow.id }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -368,
+        48
+      ],
+      "id": "69adc50b-fec5-4b04-8da1-6483d6bce250",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 384,
+        "width": 1664
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1584,
+        -192
+      ],
+      "typeVersion": 1,
+      "id": "84f6c4bb-fb3e-4f66-b3ae-1c4b8e3299bc",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        240
+      ],
+      "id": "f1b350b2-fdc2-499d-bff4-bb4add707644",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = items[0].json;\n\nconst PAGE_ID = \"PAGE ID\"; // replace with your page id\n\n// Stop if message is from your page (bot itself)\nif (item.sender && item.sender.id === PAGE_ID) {\n  return [];\n}\n\n// If message has image attachment → reply once\nif (item.message && item.message.attachments) {\n  const isImage = item.message.attachments.some(att => att.type === \"image\");\n  if (isImage) {\n    // Allow workflow to continue\n    return items;\n  } else {\n    // If attachment is not image, stop\n    return [];\n  }\n}\n\n// If it's a normal text message, let it continue as usual\nreturn items;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -48,
+        -176
+      ],
+      "id": "7a7dfa25-e7cd-42b9-b4e7-8f52abc56cdb",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call OpenAI Vision": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Call OpenAI Vision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "166d8ef7b20e0e043159c3b963ab6d27073d57960bba7538caae45542c6dab07"
+  }
+}
