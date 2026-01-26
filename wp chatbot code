@@ -81,7 +81,7 @@ function n8n_chatbot_widget() {
             Chat Support
             <button id="n8nCloseChat">&times;</button>
         </div>
-        <iframe src="https://n8n.srv1250834.hstgr.cloud/webhook/54304b07-f874-4ef9-8080-08171301cfd3/chat"></iframe>
+        <iframe src="CHAT_URL--------------------"></iframe>
     </div>
 
     <script>
