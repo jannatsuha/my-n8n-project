@@ -1,0 +1,579 @@
+{
+  "name": "Youtube shortsvideo generator",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "daysInterval": 2
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -368,
+        80
+      ],
+      "id": "7795deac-6ca8-4e0b-8be6-443cb550af34",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        256,
+        336
+      ],
+      "id": "463e0143-e582-4cdb-b271-2070fe480a4b",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1xRb1O_Af9K8xEypYivh7YVaJ7b257rTUmr-Z1kjVMco",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Status",
+              "lookupValue": "Not Done"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -96,
+        80
+      ],
+      "id": "4ae8c207-6422-46f6-901b-d86f9d041fa5",
+      "name": "Save Idea",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "hPzrXsB4kueFOC94",
+          "name": "Google Sheets account- suha"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        928,
+        80
+      ],
+      "id": "fc75ccf7-6b94-4e0b-b00b-6cf083af9be9",
+      "name": "Wait",
+      "webhookId": "e83caa6b-967e-48c1-8ba6-09f578d6b9ee"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.wavespeed.ai/api/v3/bytedance/seedance-v1-pro-t2v-480p",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={\n  \"aspect_ratio\": \"9:16\",\n  \"duration\": 5,\n  \"prompt\": \"{{ $json.output.Video_prompt }}\",\n  \"camera_fixed\": false,\n  \"seed\": -1\n}\n",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 3000
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        80
+      ],
+      "id": "59417058-95ac-499c-a199-fce99a58977e",
+      "name": "Create clips"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://queue.fal.run/fal-ai/mmaudio-v2",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Key API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "= {\n        \"prompt\": \"Add original Sound of the video\",\n        \"duration\": 6,\n        \"video_url\": \"{{ $json.data.outputs[0]}}\"\n  }",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 2000
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -384,
+        560
+      ],
+      "id": "3ea8e473-6b26-4928-9d64-e5fdcf923653",
+      "name": "Create Sounds"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -160,
+        560
+      ],
+      "id": "32da6579-ed46-4b6f-bba1-9606a36f9ad2",
+      "name": "Wait1",
+      "webhookId": "4d29c827-2c98-4581-aba4-b293f7cb25db"
+    },
+    {
+      "parameters": {
+        "url": "=https://queue.fal.run/fal-ai/mmaudio-v2/requests/{{ $json.request_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Key API_KEY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        32,
+        560
+      ],
+      "id": "43dd1e78-29e1-47a2-8ae1-2688ac3b605a",
+      "name": "Get Sounds"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1xRb1O_Af9K8xEypYivh7YVaJ7b257rTUmr-Z1kjVMco",
+          "mode": "list",
+          "cachedResultName": "FruitPeek- Youtube",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xRb1O_Af9K8xEypYivh7YVaJ7b257rTUmr-Z1kjVMco/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xRb1O_Af9K8xEypYivh7YVaJ7b257rTUmr-Z1kjVMco/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "SL": "={{ $('Save Idea').item.json.SL }}",
+            "Status": "Done",
+            "Video Title": "={{ $('AI Agent').item.json.output.Video_title }}",
+            "Video Link": "={{ $json.video.url }}",
+            "Hashtag": "={{ $('AI Agent').item.json.output.Hashtag }}"
+          },
+          "matchingColumns": [
+            "SL"
+          ],
+          "schema": [
+            {
+              "id": "SL",
+              "displayName": "SL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Fruit Name",
+              "displayName": "Fruit Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Animal Name",
+              "displayName": "Animal Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Animal Color",
+              "displayName": "Animal Color",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Video Title",
+              "displayName": "Video Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Video Link",
+              "displayName": "Video Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Hashtag",
+              "displayName": "Hashtag",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        272,
+        560
+      ],
+      "id": "d84d8c98-ae40-40df-aab9-326d0f3fa763",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "hPzrXsB4kueFOC94",
+          "name": "Google Sheets account- suha"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.wavespeed.ai/api/v3/predictions/{{ $json.data.id }}/result",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer API_KEY"
+            }
+          ]
+        },
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 3000
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1184,
+        80
+      ],
+      "id": "8806bfac-0675-4ebc-87ef-a6ff53f1cb34",
+      "name": "Get clips"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        96,
+        320
+      ],
+      "id": "afc3861e-2cb1-44b2-b438-68b96b722087",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "tkiHd2mDySnIis0p",
+          "name": "OpenAi account- Temp"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Give me video prompts based on the idea: \\\"Close-up shot of a large, oversized, realistic durian being held by two female hands with beautiful, well-manicured nails. The hands gently pull the durian apart from the center, opening it naturally as if tearing open a soft fruit. As the durian opens, the interior should look realistically hollow and spacious, clearly empty, as if a tiny animal has been sitting inside.\\n\\nInside the hollow interior, a baby cute puppy becomes visible. Its tiny nose and round face appear adorably from within the empty space. The puppy has a soft mint-green color. The puppy gently moves forward but stays inside the durian, sitting comfortably and not walking away. It remains nestled inside the hollow fruit, adding a magical and heartwarming feel.\\n\\nThe durian should look highly realistic — spiky green exterior with natural texture, soft torn fibrous edges where it splits, and a believable hollow core sized perfectly for the puppy. The inside should not show typical durian flesh; it must look naturally hollowed.\\n\\nThe background should be soothing, in soft grey-white tones, gently blurred for a clean, minimal aesthetic. Use warm indoor lighting, shallow depth of field, smooth motion, and a friendly, magical, whimsical mood.\\\"\\n\\nUse the Think tool to review your output\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an AI Video Content Generator for YouTube Shorts. \n\nDo not generate any emoji or newline or special character. \nUsing these values, generate:\n1. A detailed cinematic video prompt describing a close-up scene of the fruit being opened by two female hands, showing a hollow interior, and revealing the baby animal inside with the given color. The mood must be magical, cute, warm, realistic, and whimsical with ASMR-friendly motion, soft lighting, and a grey-white clean background.\n2. A short, viral-style YouTube video title based on the fruit and animal.\n3. A set of relevant hashtags.\n\nYour task is to take three inputs from JSON:- \nFruit Name → {{ $json['Fruit Name'] }}\nAnimal Name → {{ $json['Animal Name'] }} \nAnimal Color → {{ $json['Animal Color'] }}\n\nAlways output the response in pure JSON using these exact keys:\n- \"video_prompt\"\n- \"video_title\"\n- \"hashtags\"\n\nExample: \nvideo_prompt: Close-up shot of a large, oversized, realistic durian being held by two female hands with beautiful, well-manicured nails. The hands gently pull the durian apart from the center, opening it naturally as if tearing open a soft fruit. As the durian opens, the interior should look realistically hollow and spacious, clearly empty, as if a tiny animal has been sitting inside.\n\nInside the hollow interior, a baby cute puppy becomes visible. Its tiny nose and round face appear adorably from within the empty space. The puppy has a soft mint-green color. The puppy gently moves forward but stays inside the durian, sitting comfortably and not walking away. It remains nestled inside the hollow fruit, adding a magical and heartwarming feel.\n\nThe durian should look highly realistic — spiky green exterior with natural texture, soft torn fibrous edges where it splits, and a believable hollow core sized perfectly for the puppy. The inside should not show typical durian flesh; it must look naturally hollowed.\n\nThe background should be soothing, in soft grey-white tones, gently blurred for a clean, minimal aesthetic. Use warm indoor lighting, shallow depth of field, smooth motion, and a friendly, magical, whimsical mood.\n\nvideo_title: Tiny Cat Hiding in a Huge Durian – So Cute!!\n\nhashtags: #asmr #Durian #satisfying "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        192,
+        80
+      ],
+      "id": "d544394d-66c3-4e74-9c5e-1c5823efb562",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"Video_prompt\": \"\",\n    \"Video_title\": \"\",\n    \"Hashtag\":\"\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        384,
+        336
+      ],
+      "id": "a92a141d-a241-42b8-875a-8f5449014a7e",
+      "name": "Structured Output Parser"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Save Idea",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Idea": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get clips",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create clips": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Sounds": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Get Sounds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Sounds": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get clips": {
+      "main": [
+        [
+          {
+            "node": "Create Sounds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Create clips",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Dhaka",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1,
+    "availableInMCP": false
+  },
+  "versionId": "7cc28cb3-0c62-4e5b-9f07-233806d83295",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "df5f523cc338ad1b397b62bfee6b5accb9cf68fe4f41e8b28b2f6e1d3d0c9240"
+  },
+  "id": "LIjGWQFjm84wWSri",
+  "tags": []
+}
